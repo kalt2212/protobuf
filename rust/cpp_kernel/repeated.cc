@@ -43,6 +43,12 @@ extern "C" {
       google::protobuf::RepeatedField<ty>* r) {                                          \
     r->Clear();                                                                \
   }                                                                            \
+  void proto2_rust_RepeatedField_##rust_ty##_truncate(                         \
+      google::protobuf::RepeatedField<ty>* r, size_t new_len) {                          \
+    if (new_len < static_cast<size_t>(r->size())) {                            \
+      r->Truncate(new_len);                                                    \
+    }                                                                          \
+  }                                                                            \
   void proto2_rust_RepeatedField_##rust_ty##_reserve(                          \
       google::protobuf::RepeatedField<ty>* r, size_t additional) {                       \
     r->Reserve(r->size() + additional);                                        \
@@ -59,7 +65,7 @@ expose_repeated_field_methods(int64_t, i64);
 
 #define expose_repeated_ptr_field_methods(ty)                        \
   google::protobuf::RepeatedPtrField<std::string>*                             \
-      proto2_rust_RepeatedField_##ty##_new() {                       \
+  proto2_rust_RepeatedField_##ty##_new() {                           \
     return new google::protobuf::RepeatedPtrField<std::string>();              \
   }                                                                  \
   void proto2_rust_RepeatedField_##ty##_free(                        \
@@ -93,6 +99,12 @@ expose_repeated_field_methods(int64_t, i64);
   void proto2_rust_RepeatedField_##ty##_clear(                       \
       google::protobuf::RepeatedPtrField<std::string>* r) {                    \
     r->Clear();                                                      \
+  }                                                                  \
+  void proto2_rust_RepeatedField_##ty##_truncate(                    \
+      google::protobuf::RepeatedPtrField<std::string>* r, size_t new_len) {    \
+    while (static_cast<size_t>(r->size()) > new_len) {               \
+      r->RemoveLast();                                               \
+    }                                                                \
   }                                                                  \
   void proto2_rust_RepeatedField_##ty##_reserve(                     \
       google::protobuf::RepeatedPtrField<std::string>* r, size_t additional) { \
@@ -139,6 +151,11 @@ google::protobuf::MessageLite* proto2_rust_RepeatedField_Message_add(
 
 void proto2_rust_RepeatedField_Message_clear(RepeatedPtrFieldBase* field) {
   field->Clear<GenericTypeHandler<google::protobuf::MessageLite>>();
+}
+
+void proto2_rust_RepeatedField_Message_truncate(RepeatedPtrFieldBase* field,
+                                                size_t new_len) {
+  RustRepeatedMessageHelper::Truncate(*field, new_len);
 }
 
 void proto2_rust_RepeatedField_Message_copy_from(
